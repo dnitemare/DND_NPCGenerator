@@ -1,0 +1,447 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Random NPC Generator</title>
+	
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/chance/1.0.2/chance.min.js"></script>
+	<script type="text/javascript">
+		$(function() {
+			//Startup code
+			changeOptionListForIdealsBasedOnAlignment();
+			
+			//Trigger events
+			$('#generateRandomNPC').on('click', function(e) {
+				console.log("Generating Character...");
+				getNewRandomClass();
+				getNewRandomSex();
+				getNewRandomRace();
+				getNewRandomAppearance();
+				getNewRandomAbilities();
+				getNewRandomTalents();
+				getNewRandomMannerisms();
+				getNewRandomInteractions();
+				getNewRandomIdeals();
+				getNewRandomBonds();
+				getNewRandomFlawsOrSecrets();
+				getNewRandomName();
+			});
+			$('#NPCIdealsAlignment').on('change', function(e) {
+				changeOptionListForIdealsBasedOnAlignment();
+			});
+		});
+		
+		function getRandomNumberInRange(lowestNumber, highestNumber) {
+			return Math.floor((Math.random() * highestNumber) + lowestNumber);
+		}
+		
+		function getNewRandomClass(){
+			var hasClasses = getRandomNumberInRange(1, 100) <= 35;
+			var npcClass = hasClasses ? getRandomNumberInRange(1, 12) : 0;
+			var npcLevel = 0;
+			
+			if (npcClass != 0) {
+				var offsetOfLevel = getRandomNumberInRange(-1, 3); // -1, 0, or 1
+				console.log('offsetOfLevel = ' + offsetOfLevel);
+				npcLevel = parseInt($('#partyLevel').val()) + offsetOfLevel;
+				if (npcLevel < 1) {
+					npcClass = 0;
+					npcLevel = 0;
+				}
+			}
+			$('#NPCClass').val(npcClass);
+			$('#NPCLevel').val(npcLevel);
+		}
+		
+		function getNewRandomAppearance(){
+			$('#NPCAppearance').val(getRandomNumberInRange(1, 20));
+		}
+		
+		function getNewRandomAbilities(){
+			var strongAbility = getRandomNumberInRange(1, 6);
+			var weakAbility = getRandomNumberInRange(1, 6);
+			
+			// Don't let them have the same strength and weakness because that is paradoxical mate
+			while(weakAbility == strongAbility) {
+				weakAbility = getRandomNumberInRange(1, 6);
+			}
+			
+			$('#NPCAbilityStrength').val(strongAbility);
+			$('#NPCAbilityWeakness').val(weakAbility);
+		}
+		
+		function getNewRandomTalents(){
+			$('#NPCTalents').val(getRandomNumberInRange(1, 20));
+		}
+		
+		function getNewRandomMannerisms(){
+			$('#NPCMannerisms').val(getRandomNumberInRange(1, 20));
+		}
+		
+		function getNewRandomInteractions(){
+			$('#NPCInteractions').val(getRandomNumberInRange(1, 12));
+		}
+		
+		function getNewRandomIdeals(){
+			var alignment = getRandomNumberInRange(1, 6);
+			var ideal = getRandomNumberInRange(1, 6);
+			
+			$('#NPCIdealsAlignment').val(alignment).change();
+			$('#NPCIdeals').val(ideal);
+		}
+		
+		function getNewRandomBonds(){
+			var bond = getRandomNumberInRange(1, 10);
+			while (bond == 10) {
+				bond = getRandomNumberInRange(1, 10);
+			}
+			$('#NPCBonds').val(bond);
+		}
+		
+		function getNewRandomFlawsOrSecrets(){
+			$('#NPCFlawOrSecret').val(getRandomNumberInRange(1, 12));
+		}
+		
+		function getNewRandomSex(){
+			$('#NPCSex').val(getRandomNumberInRange(1,2));
+		}
+		
+		function getNewRandomRace(){
+			$('#NPCRace').val(getRandomNumberInRange(1,9));
+		}
+		
+		function getNewRandomName(){
+			// 1 = female, 2 = male
+			var npcSex = ($('#NPCSex').val() == '1' ? 'female' : 'male');
+			$('#NPCFirstName').val(chance.first({ gender: npcSex }));
+			$('#NPCLastName').val(chance.last());
+		}
+	
+		function changeOptionListForIdealsBasedOnAlignment() {
+			var alignment = $('#NPCIdealsAlignment').val();
+			var optionListForIdeals = [];
+			
+			console.log("Generating new options for NPCIdeals...");
+			
+			// 1 = Good, 2 = Evil, 3 = Lawful, 4 = Chaotic, 5 = Neutral, 6 = Other
+			switch(alignment){
+				case '1':
+					optionListForIdeals = [ 'Beauty', 'Charity', 'Greater Good', 'Life', 'Respect', 'Self-sacrifice' ];
+					break;
+				case '2':
+					optionListForIdeals = [ 'Domination', 'Greed', 'Might', 'Pain', 'Retribution', 'Slaughter' ];
+					break;
+				case '3':
+					optionListForIdeals = [ 'Community', 'Fairness', 'Honor', 'Logic', 'Responsibility', 'Tradition' ];
+					break;
+				case '4':
+					optionListForIdeals = [ 'Change', 'Creativity', 'Freedom', 'Independence', 'No limits', 'Whimsy' ];
+					break;
+				case '5':
+					optionListForIdeals = [ 'Balance', 'Knowledge', 'Live and let live', 'Moderation', 'Neutrality', 'People' ];
+					break;
+				case '6':
+					optionListForIdeals = [ 'Aspiration', 'Discovery', 'Glory', 'Nation', 'Redemption', 'Self-knowledge' ];
+					break;
+				default:
+					optionListForIdeals = [ '1', '2', '3', '4', '5', '6' ];
+			}
+			var $relatedOptionElement;
+			for(var i = 0; i < optionListForIdeals.length; i++) {
+				$relatedOptionElement = $('#NPCIdeals option[value="' + (i+1) + '"]');
+				$relatedOptionElement.text(optionListForIdeals[i]);
+			}
+		}
+	</script>
+</head>
+<body>
+	<table>
+		<tr>
+			<td>Party Level:
+				<select name="partyLevel" id="partyLevel">
+					<option value="1">1</option>
+					<option value="2">2</option>
+					<option value="3">3</option>
+					<option value="4">4</option>
+					<option value="5">5</option>
+					<option value="6">6</option>
+					<option value="7">7</option>
+					<option value="8">8</option>
+					<option value="9">9</option>
+					<option value="10">10</option>
+					<option value="11">11</option>
+					<option value="12">12</option>
+					<option value="13">13</option>
+					<option value="14">14</option>
+					<option value="15">15</option>
+					<option value="16">16</option>
+					<option value="17">17</option>
+					<option value="18">18</option>
+					<option value="19">19</option>
+					<option value="20">20</option>
+				</select>
+			</td>
+			<td>
+				<button id="generateRandomNPC">Generate A Random NPC</button>
+			</td>
+		</tr>
+		</table>
+		<br>
+		<br>
+		<br>
+		<table>
+		<tr>
+			<td>
+				<table>
+					<tr>
+						<td>First Name:<br>
+							<input type="text" id="NPCFirstName" size="40">
+						</td>
+					</tr>
+					<tr>
+						<td>Last Name:<br>
+							<input type="text" id="NPCLastName" size="40">
+						</td>
+					</tr>
+				</table>
+			</td>
+			<td>Occupation and History<br>
+				<textarea rows="4" cols="50" id="NPCOccupation"></textarea>
+			</td>
+			<td>Useful Knowledge<br>
+				<textarea rows="4" cols="50" id="NPCUsefulKnowledge"></textarea>
+			</td>
+				<td>
+				<table>
+					<tr>
+						<td>Class:<br>
+							<select name="NPCClass" id="NPCClass">
+								<option value="0">No Class</option>
+								<option value="1">Barbarian</option>
+								<option value="2">Bard</option>
+								<option value="3">Cleric</option>
+								<option value="4">Druid</option>
+								<option value="5">Fighter</option>
+								<option value="6">Monk</option>
+								<option value="7">Paladin</option>
+								<option value="8">Ranger</option>
+								<option value="9">Rogue</option>
+								<option value="10">Sorceror</option>
+								<option value="11">Warlock</option>
+								<option value="12">Wizard</option>
+							</select>
+						</td>
+						<td>Level:<br>
+							<select name="NPCLevel" id="NPCLevel">
+								<option value="0">No Level</option>
+								<option value="1">1</option>
+								<option value="2">2</option>
+								<option value="3">3</option>
+								<option value="4">4</option>
+								<option value="5">5</option>
+								<option value="6">6</option>
+								<option value="7">7</option>
+								<option value="8">8</option>
+								<option value="9">9</option>
+								<option value="10">10</option>
+								<option value="11">11</option>
+								<option value="12">12</option>
+								<option value="13">13</option>
+								<option value="14">14</option>
+								<option value="15">15</option>
+								<option value="16">16</option>
+								<option value="17">17</option>
+								<option value="18">18</option>
+								<option value="19">19</option>
+								<option value="20">20</option>
+							</select>
+						</td>
+					</tr>
+					<tr>
+						<td>Sex:<br>
+							<select name="NPCSex" id="NPCSex">
+								<option value="1">Female</option>
+								<option value="2">Male</option>
+							</select>
+						</td>
+						<td>
+							Race:<br>
+							<select name="NPCRace" id="NPCRace">
+								<option value="1">Dwarf</option>
+								<option value="2">Elf</option>
+								<option value="3">Halfling</option>
+								<option value="4">Human</option>
+								<option value="5">Dragonborn</option>
+								<option value="6">Gnome</option>
+								<option value="7">Half-Elf</option>
+								<option value="8">Half-Orc</option>
+								<option value="9">Tiefling</option>
+							</select>
+						</td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+		<tr>
+			<td>Appearance:<br>
+				<select name="NPCAppearance" id="NPCAppearance">
+					<option value="1">Distinctive jewelry: earrings, necklace, circlet, bracelets</option>
+					<option value="2">Piercings</option>
+					<option value="3">Flamboyant or outlandish clothes</option>
+					<option value="4">Formal, clean clothes</option>
+					<option value="5">Ragged, dirty clothes</option>
+					<option value="6">Pronounced scar</option>
+					<option value="7">Missing teeth</option>
+					<option value="8">Missing fingers</option>
+					<option value="9">Unusual eye color (or two different colors)</option>
+					<option value="10">Tattoos</option>
+					<option value="11">Birthmark</option>
+					<option value="12">Unusual skin color</option>
+					<option value="13">Bald</option>
+					<option value="14">Braided beard or hair</option>
+					<option value="15">Unusual hair color</option>
+					<option value="16">Nervous eye twitch</option>
+					<option value="17">Distinctive nose</option>
+					<option value="18">Distinctive posture (crooked or rigid)</option>
+					<option value="19">Exceptionally beautiful</option>
+					<option value="20">Exceptionally ugly</option>
+				</select>
+			</td>
+			<td>Abilities:<br>
+				High:&nbsp;<select name="NPCAbilityStrength" id="NPCAbilityStrength">
+					<option value="1">Strength -- Powerful, brawny, strong as an ox</option>
+					<option value="2">Dexterity -- Lithe, agile, graceful</option>
+					<option value="3">Constitution -- hardy, hale, healthy</option>
+					<option value="4">Intelligence -- Studious, learned, inquisitive</option>
+					<option value="5">Wisdom -- Perceptive, spiritual, insightful</option>
+					<option value="6">Charisma -- Persuasive, forceful, born leader</option>
+				</select>
+				<br>
+				Low:&nbsp;<select name="NPCAbilityWeakness" id="NPCAbilityWeakness">
+					<option value="1">Strength -- Feeble, scrawny</option>
+					<option value="2">Dexterity -- Clumsy, fumbling</option>
+					<option value="3">Constitution -- Sickly, pale</option>
+					<option value="4">Intelligence -- Dim-witted, slow</option>
+					<option value="5">Wisdom -- oblivious, absentminded</option>
+					<option value="6">Charisma -- dull, boring</option>
+				</select>
+			</td>
+			<td>Talents:<br>
+				<select name="NPCTalents" id="NPCTalents">
+					<option value="1">Plays a musical instrument</option>
+					<option value="2">Speaks several languages fluently</option>
+					<option value="3">Unbelievably lucky</option>
+					<option value="4">Perfect memory</option>
+					<option value="5">Great with animals</option>
+					<option value="6">Great with children</option>
+					<option value="7">Great at solving puzzles</option>
+					<option value="8">Great at one game</option>
+					<option value="9">Great at impersonations</option>
+					<option value="10">Draws beautifully</option>
+					<option value="11">Paints beautifully</option>
+					<option value="12">Sings beautifully</option>
+					<option value="13">Drinks everyone under the table</option>
+					<option value="14">Expert carpenter</option>
+					<option value="15">Expert Cook</option>
+					<option value="16">Expert dart thrower and rock skipper</option>
+					<option value="17">Expert juggler</option>
+					<option value="18">Skilled actor and master of disguise</option>
+					<option value="19">Skilled dancer</option>
+					<option value="20">Knows thieves' cant</option>
+				</select>
+			</td>
+			<td>Mannerisms:<br>
+				<select name="NPCMannerisms" id="NPCMannerisms">
+					<option value="1">Prone to singing, whistling, or humming quietly</option>
+					<option value="2">Speaks in rhyme or some other peculiar way</option>
+					<option value="3">Particularly low or high voice</option>
+					<option value="4">Slurs words, lisps, or stutters</option>
+					<option value="5">Enunciates overly clearly</option>
+					<option value="6">Speaks loudly</option>
+					<option value="7">Whispers</option>
+					<option value="8">Uses flowery speech or long words</option>
+					<option value="9">Frequently uses the wrong word</option>
+					<option value="10">Uses colorful oaths and exclamations</option>
+					<option value="11">Makes constant jokes or puns</option>
+					<option value="12">Prone to predictions of doom</option>
+					<option value="13">Fidgets</option>
+					<option value="14">Squints</option>
+					<option value="15">Stares into the distance</option>
+					<option value="16">Chews something</option>
+					<option value="17">Paces</option>
+					<option value="18">Taps fingers</option>
+					<option value="19">Bites fingernails</option>
+					<option value="20">Twirls hair or tugs beard</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Interactions:<br>
+				<select name="NPCInteractions" id="NPCInteractions">
+					<option value="1">Argumentative</option>
+					<option value="2">Arrogant</option>
+					<option value="3">Blustering</option>
+					<option value="4">Rude</option>
+					<option value="5">Curious</option>
+					<option value="6">Friendly</option>
+					<option value="7">Honest</option>
+					<option value="8">Hot tempered</option>
+					<option value="9">Irritable</option>
+					<option value="10">Ponderous</option>
+					<option value="11">Quiet</option>
+					<option value="12">Suspicious</option>
+				</select>
+			</td>
+			<td>Ideals:<br>
+				<select name="NPCIdealsAlignment" id="NPCIdealsAlignment">
+					<option value="1">Good</option>
+					<option value="2">Evil</option>
+					<option value="3">Lawful</option>
+					<option value="4">Chaotic</option>
+					<option value="5">Neutral</option>
+					<option value="6">Other</option>
+				</select>
+				<select name="NPCIdeals" id="NPCIdeals">
+					<option value="1"></option>
+					<option value="2"></option>
+					<option value="3"></option>
+					<option value="4"></option>
+					<option value="5"></option>
+					<option value="6"></option>
+				</select>
+			</td>
+			<td>Bonds:<br>
+				<select name="NPCBonds" id="NPCBonds">
+					<option value="1">Dedicated to fulfilling a personal life goal</option>
+					<option value="2">Protective of close family members</option>
+					<option value="3">Protective of colleagues or compatriots</option>
+					<option value="4">Loyal to a benefactor, patron, or employer</option>
+					<option value="5">Captivated by a romantic interest</option>
+					<option value="6">Drawn to a special place</option>
+					<option value="7">Protective of a sentimental keepsake</option>
+					<option value="8">Protective of a valuable possession</option>
+					<option value="9">Out for revenge</option>
+				</select>
+			</td>
+			<td>Flaws/Secrets:<br>
+				<select name="NPCFlawOrSecret" id="NPCFlawOrSecret">
+					<option value="1">Forbidden love or susceptibility to romance</option>
+					<option value="2">Enjoys decadent pleasures</option>
+					<option value="3">Arrogance</option>
+					<option value="4">Envies another creature's possessions or station</option>
+					<option value="5">Overpowering greed</option>
+					<option value="6">Prone to rage</option>
+					<option value="7">Has a poweful enemy</option>
+					<option value="8">Specific phobia</option>
+					<option value="9">Shameful or scandalous history</option>
+					<option value="10">Secret crime or misdeed</option>
+					<option value="11">Possession of forbidden lore</option>
+					<option value="12">Foolhardy bravey</option>
+				</select>
+			</td>
+		</tr>
+	</table>
+	
+</body>
+</html>
